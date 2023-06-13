@@ -1,57 +1,38 @@
 pipeline {
     agent any
-     tools {
-        maven 'Maven' 
-        }
+
+    tools{
+        maven 'Maven'
+    }
+
     stages {
-        stage("Test"){
-            steps{
-                // mvn test
+        stage('Test') {
+            steps {
+                echo 'Package Testing'
+                //mvn test
                 sh "mvn test"
-                slackSend channel: 'youtubejenkins', message: 'Job Started'
-                
-            }
-            
-        }
-        stage("Build"){
-            steps{
+            } 
+        }    
+        stage('Build') {
+            steps {
+                echo 'Builing Project'
+                //mvn install
                 sh "mvn package"
-                
             }
-            
         }
-        stage("Deploy on Test"){
-            steps{
-                // deploy on container -> plugin
-                deploy adapters: [tomcat9(credentialsId: 'tomcatserverdetails1', path: '', url: 'http://192.168.0.118:8080')], contextPath: '/app', war: '**/*.war'
-              
-            }
-            
-        }
-        stage("Deploy on Prod"){
-             input {
-                message "Should we continue?"
-                ok "Yes we Should"
-            }
-            
-            steps{
-                // deploy on container -> plugin
-                deploy adapters: [tomcat9(credentialsId: 'tomcatserverdetails1', path: '', url: 'http://192.168.0.119:8080')], contextPath: '/app', war: '**/*.war'
+        stage('Deploy to Test') {
+            steps {
+                echo 'Deploying to Test'
+                deploy adapters: [tomcat9(credentialsId: 'ubuntu-jen', path: '', url: 'http://52.66.244.238:8080/')], contextPath: '/app', war: '**/*.war'
 
             }
-        }
-    }
-    post{
-        always{
-            echo "========always========"
-        }
-        success{
-            echo "========pipeline executed successfully ========"
-             slackSend channel: 'youtubejenkins', message: 'Success'
-        }
-        failure{
-            echo "========pipeline execution failed========"
-             slackSend channel: 'youtubejenkins', message: 'Job Failed'
-        }
+        }   
+        stage('Deploy to Prod') {
+            steps {
+                echo 'Deploying to Production'
+                deploy adapters: [tomcat9(credentialsId: 'ubuntu-jen', path: '', url: 'http://http://3.108.238.102:8080//')], contextPath: '/app', war: '**/*.war'
+            }
+        }   
+        
     }
 }
