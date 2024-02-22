@@ -28,10 +28,11 @@ pipeline {
                 wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -\
                 echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list \
                 sudo apt update \
-                sudo apt install trivy -y '''}
+                sudo apt install trivy -y '''
+                }
         }
 
-        stage('trivy result')
+        stage('trivy result') {
             steps {
                 echo 'trivy scanning'
                 //mvn install
